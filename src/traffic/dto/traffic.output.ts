@@ -1,15 +1,13 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Output, ResponseMessageType } from '../../dto/output.dto';
 
-@ObjectType('TrafficOutput')
-export class TrafficOutput {
-  @Field(() => Number)
-  count: number;
-  @Field(() => Number)
-  created_at: number;
-  @Field(() => Date)
+export type TrafficData = {
   date: Date;
-  @Field(() => String)
-  traffic_uuid: string;
-  @Field(() => Number)
-  updated_at: number;
+  count: number;
+  totalCount: number;
+};
+
+export class TrafficOutput implements Output {
+  status: boolean;
+  message: ResponseMessageType;
+  data: TrafficData;
 }

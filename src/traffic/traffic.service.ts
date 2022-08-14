@@ -13,6 +13,12 @@ export class TrafficService {
     return await this.trafficModel.findOne({ date }).exec();
   }
 
+  async findTotalCount(): Promise<number> {
+    const raw = await this.trafficModel.find({}).select('count');
+    const counts = raw.map((item) => item.count);
+    return counts.reduce((acc, cur) => acc + cur, 0);
+  }
+
   async createOrUpdate(date: string): Promise<TrafficDocument> {
     const data = await this.find(date);
     if (data) {
@@ -23,10 +29,5 @@ export class TrafficService {
 
     const trafficModel = new this.trafficModel({ date, count: 1 });
     return trafficModel.save();
-  }
-
-  getToday(): string {
-    const today = new Date();
-    return today.toISOString().split('T')[0];
   }
 }
