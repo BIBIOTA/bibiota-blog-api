@@ -1,28 +1,29 @@
 import { Controller, Get, Post, CACHE_MANAGER, Inject } from '@nestjs/common';
 import { TrafficOutput, TrafficData } from './dto/traffic.output';
 import { TrafficService } from './traffic.service';
-import { TimeUtilService } from '../util/time-util.service';
-import { ResponseService } from '../util/response.service';
+import { Response } from '../trait/response.trait';
+import {
+  getToday,
+  getTimestampFromNowToTommorowMidnight,
+} from '../util/time.util';
 import { UserIp } from './decorator/req.decorator';
 import { Cache } from 'cache-manager';
 
 @Controller('traffic')
-export class TrafficController {
+export class TrafficController implements Response {
   constructor(
     private trafficService: TrafficService,
-    private timeUtilService: TimeUtilService,
-    private responseService: ResponseService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   @Get()
   async getCount(): Promise<TrafficOutput> {
-    const today = this.timeUtilService.getToday();
+    const today = getToday();
     const { date, count } = await this.trafficService.find(today);
     const totalCount = await this.trafficService.findTotalCount();
 
     const responseData = this.setData(date, count, totalCount);
-    return this.responseService.setResponse(responseData, true);
+    return Response.success(responseData);
   }
 
   @Post()
@@ -33,18 +34,18 @@ export class TrafficController {
       return this.getCount();
     }
 
-    const today = this.timeUtilService.getToday();
+    const today = getToday();
     const { date, count } = await this.trafficService.createOrUpdate(today);
     const totalCount = await this.trafficService.findTotalCount();
 
     this.cacheManager.set(
       cacheKey,
       true,
-      this.timeUtilService.getTimestampFromNowToTommorowMidnight(),
+      getTimestampFromNowToTommorowMidnight(),
     );
 
     const responseData = this.setData(date, count, totalCount);
-    return this.responseService.setResponse(responseData, true);
+    return Response.success(responseData);
   }
 
   private setData(date: Date, count: number, totalCount: number): TrafficData {

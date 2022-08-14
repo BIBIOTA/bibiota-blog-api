@@ -3,15 +3,12 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Traffic, TrafficSchema } from './traffic.model';
 import { TrafficService } from './traffic.service';
 import { TrafficController } from './traffic.controller';
-import { TimeUtilService } from '../util/time-util.service';
-import { ResponseService } from 'src/util/response.service';
-
 @Module({
   imports: [
     CacheModule.register(),
     MongooseModule.forFeature([{ name: Traffic.name, schema: TrafficSchema }]),
   ],
   controllers: [TrafficController],
-  providers: [TrafficService, TimeUtilService, ResponseService],
+  providers: [TrafficService],
 })
 export class TrafficModule {}
